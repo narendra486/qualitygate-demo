@@ -89,6 +89,7 @@ jobs:
             codeql-results.sarif
             sarif-results/exit-confirm.sarif
           severity_threshold: medium
+          mode: block
           github_token: ${{ secrets.GITHUB_TOKEN }}
           pr_comment: true
           enable_annotations: false
