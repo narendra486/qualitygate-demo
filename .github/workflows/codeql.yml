@@ -8,6 +8,7 @@ permissions:
   contents: read
   pull-requests: write
   security-events: read
+  checks: write
 
 jobs:
   codeql:
@@ -31,10 +32,12 @@ jobs:
           output: codeql-results.sarif
 
       - name: Quality Gate
-        uses: narendra486/qualitygate@v1
+        uses: narendra486/qualitygate@enterprise-sarif-qualitygate
         with:
           sarif_file: codeql-results.sarif
           severity_threshold: medium
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          pr_comment: true
+          pr_comment: false
+          enable_step_summary: true
+          enable_annotations: false
           deduplicate: true

@@ -1,0 +1,81 @@
+name: QualityGate Validation PR
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+jobs:
+  validate-qualitygate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create validation SARIF
+        run: |
+          mkdir -p sarif-results
+          cat > sarif-results/validation.sarif <<'EOF'
+          {
+            "version": "2.1.0",
+            "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+            "runs": [
+              {
+                "tool": {
+                  "driver": {
+                    "name": "QualityGate Demo Scanner",
+                    "semanticVersion": "1.0.0",
+                    "rules": [
+                      {
+                        "id": "demo/high-risk-eval",
+                        "name": "High risk dynamic evaluation",
+                        "properties": {
+                          "security-severity": "8.2"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "results": [
+                  {
+                    "ruleId": "demo/high-risk-eval",
+                    "ruleIndex": 0,
+                    "level": "error",
+                    "message": {
+                      "text": "Synthetic high severity finding used to validate QualityGate PR behavior."
+                    },
+                    "locations": [
+                      {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "app.js"
+                          },
+                          "region": {
+                            "startLine": 14
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+          EOF
+
+      - name: Run QualityGate from implementation branch
+        id: qualitygate
+        uses: narendra486/qualitygate@enterprise-sarif-qualitygate
+        with:
+          sarif_file: sarif-results
+          severity_threshold: high
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          pr_comment: true
+          enable_annotations: true
+          enable_step_summary: true
+          deduplicate: true
