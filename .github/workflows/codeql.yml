@@ -36,5 +36,5 @@ jobs:
           sarif_file: codeql-results.sarif
           severity_threshold: medium
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          pr_comment: true
+          pr_comment: false
           deduplicate: true
