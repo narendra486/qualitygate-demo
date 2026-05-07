@@ -1,16 +1,16 @@
 {
-  "name": "qualitygate-demo",
-  "version": "1.0.0",
-  "description": "Demo repository for CodeQL + QualityGate SARIF enforcement",
-  "main": "app.js",
-  "scripts": {
-    "start": "node app.js"
-  },
-  "dependencies": {
-    "express": "^4.18.2"
-  },
-  "engines": {
-    "node": ">=24.0.0"
-  },
-  "license": "MIT"
+    "name": "qualitygate-demo",
+    "version": "1.0.0",
+    "description": "Demo repository for CodeQL + QualityGate SARIF enforcement",
+    "main": "app.js",
+    "scripts": {
+        "start": "node app.js"
+    },
+    "dependencies": {
+        "express": "^4.18.2"
+    },
+    "engines": {
+        "node": ">=24.0.0"
+    },
+    "license": "MIT"
 }
