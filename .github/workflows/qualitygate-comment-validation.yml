@@ -1,0 +1,77 @@
+name: QualityGate Comment Validation
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+jobs:
+  validate-comment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create validation SARIF
+        run: |
+          mkdir -p sarif-results
+          cat > sarif-results/comment-validation.sarif <<'EOF'
+          {
+            "version": "2.1.0",
+            "runs": [
+              {
+                "tool": {
+                  "driver": {
+                    "name": "QualityGate Demo Scanner",
+                    "rules": [
+                      {
+                        "id": "demo/high-risk-eval",
+                        "name": "High risk dynamic evaluation",
+                        "properties": {
+                          "security-severity": "8.2"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "results": [
+                  {
+                    "ruleId": "demo/high-risk-eval",
+                    "ruleIndex": 0,
+                    "level": "error",
+                    "message": {
+                      "text": "Synthetic high severity finding used to validate QualityGate PR comment content."
+                    },
+                    "locations": [
+                      {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "app.js"
+                          },
+                          "region": {
+                            "startLine": 14
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+          EOF
+
+      - name: Run QualityGate comment validation
+        uses: narendra486/qualitygate@enterprise-sarif-qualitygate
+        with:
+          sarif_file: sarif-results
+          severity_threshold: high
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          pr_comment: true
+          enable_annotations: false
+          enable_step_summary: true
