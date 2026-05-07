@@ -1,0 +1,40 @@
+name: CodeQL Security Scan
+
+on:
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+  pull-requests: write
+  security-events: read
+
+jobs:
+  codeql:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Analyze
+        uses: github/codeql-action/analyze@v3
+        with:
+          output: codeql-results.sarif
+
+      - name: Quality Gate
+        uses: narendra486/qualitygate@v1
+        with:
+          sarif_file: codeql-results.sarif
+          severity_threshold: medium
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          pr_comment: true
+          deduplicate: true
