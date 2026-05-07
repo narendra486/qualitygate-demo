@@ -39,5 +39,5 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           pr_comment: false
           enable_step_summary: true
-          enable_annotations: true
+          enable_annotations: false
           deduplicate: true

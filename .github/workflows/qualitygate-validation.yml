@@ -71,7 +71,6 @@ jobs:
       - name: Run QualityGate from implementation branch
         id: qualitygate
         uses: narendra486/qualitygate@enterprise-sarif-qualitygate
-        continue-on-error: true
         with:
           sarif_file: sarif-results
           severity_threshold: high
@@ -80,9 +79,3 @@ jobs:
           enable_annotations: true
           enable_step_summary: true
           deduplicate: true
-
-      - name: Confirm QualityGate blocked the PR
-        run: |
-          test "${{ steps.qualitygate.outputs.quality_gate_status }}" = "FAIL"
-          test "${{ steps.qualitygate.outputs.blocked }}" = "true"
-          test "${{ steps.qualitygate.outputs.high_count }}" = "1"
