@@ -93,4 +93,3 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           pr_comment: true
           enable_annotations: false
-          deduplicate: true
