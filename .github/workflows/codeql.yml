@@ -3,11 +3,14 @@ name: CodeQL Security Scan
 on:
   pull_request:
     branches: [ main ]
+  push:
+    branches: [ main ]
 
 permissions:
   contents: read
   pull-requests: write
   security-events: read
+  checks: write
 
 jobs:
   codeql:
@@ -30,11 +33,62 @@ jobs:
         with:
           output: codeql-results.sarif
 
+      - name: Create QualityGate validation SARIF
+        run: |
+          mkdir -p sarif-results
+          cat > sarif-results/exit-confirm.sarif <<'EOF'
+          {
+            "version": "2.1.0",
+            "runs": [
+              {
+                "tool": {
+                  "driver": {
+                    "name": "QualityGate Demo Scanner",
+                    "rules": [
+                      {
+                        "id": "demo/high-risk-eval",
+                        "name": "High risk dynamic evaluation",
+                        "properties": {
+                          "security-severity": "8.2"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "results": [
+                  {
+                    "ruleId": "demo/high-risk-eval",
+                    "ruleIndex": 0,
+                    "level": "error",
+                    "message": {
+                      "text": "Synthetic high severity finding used to confirm QualityGate exits with failure."
+                    },
+                    "locations": [
+                      {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "app.js"
+                          },
+                          "region": {
+                            "startLine": 14
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+          EOF
+
       - name: Quality Gate
         uses: narendra486/qualitygate@v1
         with:
-          sarif_file: codeql-results.sarif
+          sarif_file: |
+            codeql-results.sarif
+            sarif-results/exit-confirm.sarif
           severity_threshold: medium
+          mode: block
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          pr_comment: true
-          deduplicate: true
+          enable_annotations: false
